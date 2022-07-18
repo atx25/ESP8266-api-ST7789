@@ -57,11 +57,10 @@ void xianshi(){
 
   //明日天气
   tft.loadFont(fontsimkai_30);
-  tft.setTextColor(TFT_BLUE);         //设置文本颜色为黄色
-  tft.drawString(date[0],0,95);
-  String s1=(String(tianqiday[0]) +"转"+ String(tianqinight[0]));
-  const char* yubao1=s1.c_str();
-  tft.drawString(yubao1,0,125);
+  tft.setTextColor(TFT_YELLOW);         //设置文本颜色为黄色
+  tft.drawString(date[1],0,95);
+  const char* yubao1=(String(tianqiday[0]) +"转"+ String(tianqinight[0])).c_str();
+  tft.drawString(yubao1,0,80);
   tft.unloadFont();
 }
 //解析程序,预报未来3天的天气

@@ -30,12 +30,7 @@ void wifi_start_connect()              //连接WIFI
   WiFi.begin(AP_SSID, AP_PSK);         //连接wifi
   WiFi.setAutoConnect(true);
   while (WiFi.status()!= WL_CONNECTED) //这个函数是wifi连接状态，返回wifi链接状态
-        {
-        tft.setRotation(0);
-        tft.setTextColor(TFT_BLUE);         //设置文本颜色为黑色
-        tft.loadFont(fontsimkai_30);
-        tft.drawCentreString("content...",100,100,50);
-        tft.unloadFont();  
+        {  
          delay(500);
          Serial.print(".");
         }
@@ -44,30 +39,24 @@ void wifi_start_connect()              //连接WIFI
 }
 
 //显示天气
-void xianshi(){
-  tft.fillScreen(TFT_BLACK);
+void xianshi(const char* tianqiday[],const char* tianqinightp[]){
+  tft.init();                           //初始化
+  tft.setRotation(0);
+  tft.fillScreen(TFT_WHITE);            //屏幕颜色
   tft.setTextColor(TFT_YELLOW);         //设置文本颜色为黄色
   tft.loadFont(fontsimkai_30);
-  tft.drawString(city[1],0,5);
-  tft.setTextColor(TFT_YELLOW);         //设置文本颜色为黄色
-  tft.drawString(date[0],0,35);
+  tft.drawString(date[0],0,20);
   String s=String(tianqiday[0]) +"转"+ String(tianqinight[0]);
   const char* yubao=s.c_str();
-  tft.drawString(yubao,0,65);
-
-  //明日天气
-  tft.loadFont(fontsimkai_30);
-  tft.setTextColor(TFT_BLUE);         //设置文本颜色为黄色
-  tft.drawString(date[0],0,95);
-  String s1=(String(tianqiday[0]) +"转"+ String(tianqinight[0]));
-  const char* yubao1=s1.c_str();
-  tft.drawString(yubao1,0,125);
+  tft.drawString(yubao,0,60);
   tft.unloadFont();
 }
+
 //解析程序,预报未来3天的天气
 void putjson(const char* content){
   const size_t capacity = JSON_ARRAY_SIZE(1) + JSON_ARRAY_SIZE(4) + 2*JSON_OBJECT_SIZE(5) + 4*JSON_OBJECT_SIZE(10) + 700;
   DynamicJsonBuffer jsonBuffer(capacity);
+
   const char* json = content;
 
   JsonObject& root = jsonBuffer.parseObject(json);
@@ -117,13 +106,17 @@ void putjson(const char* content){
   tempday[1] =  (forecasts_0_casts_1_daytemp);
   tempnight[1] =  (forecasts_0_casts_1_nighttemp);
   tianqi =  (forecasts_0_casts_1_daytemp);
+  xianshi(tianqiday,tianqinight);
+  Serial.println(forecasts_0_province);
+  Serial.println(forecasts_0_city);
+  Serial.println(forecasts_0_casts_0_date);
 }
 //连接服务器查询天气，并在串口输出
 void getapi(){
   client.setInsecure();
   Serial.println("[HTTPS] begin...");
   String url = "https://restapi.amap.com/v3/weather/weatherInfo?&city="
-                + location + "&key=" + key + "&extensions=" + extensions+"&gzip=n";
+                + location + "&key=" + key + "&extensions=" + extensions;
   if(https.begin(client,url)){
     Serial.println("[HTTPS] GET...");
     int httpCode = https.GET();
@@ -142,18 +135,24 @@ void getapi(){
   else { // HTTPS连接失败
     Serial.printf("[HTTPS] Unable to connect\n");
   }
-  xianshi();
+  xianshi(tianqiday,tianqinight); 
   delay(10000);
 }
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);//设置波特率
+  wifi_start_connect();//连接wifi
   tft.init();                           //初始化
   tft.setRotation(0);
-  tft.fillScreen(TFT_WHITE);            //屏幕颜色
-  wifi_start_connect();
+  tft.setTextColor(TFT_BLUE);         //设置文本颜色为黑色
+  tft.loadFont(fontsimkai_30);
+  tft.drawCentreString("content...",100,100,50);
   client.setTimeout(5000);//设置服务器连接超时
+  tft.unloadFont();
 }
 void loop() {
+  while(1){
     getapi();
+    xianshi(tianqiday,tianqinight); 
+  }
 }

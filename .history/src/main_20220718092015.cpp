@@ -4,7 +4,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <TFT_eSPI.h>
-#include <Tools/Create_Smooth_Font/Create_font/FontFiles/fontsimkai_30.h>
+#include <Tools/Create_Smooth_Font/Create_font/FontFiles/fontsimkai_16.h>
 #define BLK 150
 TFT_eSPI tft = TFT_eSPI();
 const char* AP_SSID     = "HUAWEI-0409E6";         // XXXXXX -- 使用时请修改为当前你的 wifi ssid
@@ -21,7 +21,6 @@ const char* date[2];
 const char* tianqi;
 const char* tempday[2];//白天的温度，最高气温
 const char* tempnight[2];//夜间温度，最低气温
-
 void wifi_start_connect()              //连接WIFI
 {
   WiFi.mode(WIFI_STA);                 //设置esp8266 工作模式 
@@ -30,12 +29,7 @@ void wifi_start_connect()              //连接WIFI
   WiFi.begin(AP_SSID, AP_PSK);         //连接wifi
   WiFi.setAutoConnect(true);
   while (WiFi.status()!= WL_CONNECTED) //这个函数是wifi连接状态，返回wifi链接状态
-        {
-        tft.setRotation(0);
-        tft.setTextColor(TFT_BLUE);         //设置文本颜色为黑色
-        tft.loadFont(fontsimkai_30);
-        tft.drawCentreString("content...",100,100,50);
-        tft.unloadFont();  
+        {  
          delay(500);
          Serial.print(".");
         }
@@ -44,30 +38,18 @@ void wifi_start_connect()              //连接WIFI
 }
 
 //显示天气
-void xianshi(){
-  tft.fillScreen(TFT_BLACK);
+void xianshi(const char* tianqiday[],const char* tianqinightp[],const char* date[]){
   tft.setTextColor(TFT_YELLOW);         //设置文本颜色为黄色
-  tft.loadFont(fontsimkai_30);
-  tft.drawString(city[1],0,5);
-  tft.setTextColor(TFT_YELLOW);         //设置文本颜色为黄色
-  tft.drawString(date[0],0,35);
-  String s=String(tianqiday[0]) +"转"+ String(tianqinight[0]);
-  const char* yubao=s.c_str();
-  tft.drawString(yubao,0,65);
-
-  //明日天气
-  tft.loadFont(fontsimkai_30);
-  tft.setTextColor(TFT_BLUE);         //设置文本颜色为黄色
-  tft.drawString(date[0],0,95);
-  String s1=(String(tianqiday[0]) +"转"+ String(tianqinight[0]));
-  const char* yubao1=s1.c_str();
-  tft.drawString(yubao1,0,125);
+  tft.loadFont(fontsimkai_16);
+  tft.setTextSize(4);
+  tft.drawString(tianqiday[0],10,20);
   tft.unloadFont();
 }
 //解析程序,预报未来3天的天气
 void putjson(const char* content){
   const size_t capacity = JSON_ARRAY_SIZE(1) + JSON_ARRAY_SIZE(4) + 2*JSON_OBJECT_SIZE(5) + 4*JSON_OBJECT_SIZE(10) + 700;
   DynamicJsonBuffer jsonBuffer(capacity);
+
   const char* json = content;
 
   JsonObject& root = jsonBuffer.parseObject(json);
@@ -88,17 +70,31 @@ void putjson(const char* content){
   JsonObject& forecasts_0_casts_0 = forecasts_0_casts[0];
 //当天的天气
   const char* forecasts_0_casts_0_date = forecasts_0_casts_0["date"]; // "2022-07-17"
+  const char* forecasts_0_casts_0_week = forecasts_0_casts_0["week"]; // "7"
   const char* forecasts_0_casts_0_dayweather = forecasts_0_casts_0["dayweather"]; // "晴"
   const char* forecasts_0_casts_0_nightweather = forecasts_0_casts_0["nightweather"]; // "晴"
   const char* forecasts_0_casts_0_daytemp = forecasts_0_casts_0["daytemp"]; // "35"
   const char* forecasts_0_casts_0_nighttemp = forecasts_0_casts_0["nighttemp"]; // "23"
+  const char* forecasts_0_casts_0_daywind = forecasts_0_casts_0["daywind"]; // "北"
+  const char* forecasts_0_casts_0_nightwind = forecasts_0_casts_0["nightwind"]; // "北"
+  const char* forecasts_0_casts_0_daypower = forecasts_0_casts_0["daypower"]; // "≤3"
+  const char* forecasts_0_casts_0_nightpower = forecasts_0_casts_0["nightpower"]; // "≤3"
 //明天的天气
   JsonObject& forecasts_0_casts_1 = forecasts_0_casts[1];
   const char* forecasts_0_casts_1_date = forecasts_0_casts_1["date"]; // "2022-07-18"
+  const char* forecasts_0_casts_1_week = forecasts_0_casts_1["week"]; // "1"
   const char* forecasts_0_casts_1_dayweather = forecasts_0_casts_1["dayweather"]; // "晴"
   const char* forecasts_0_casts_1_nightweather = forecasts_0_casts_1["nightweather"]; // "多云"
   const char* forecasts_0_casts_1_daytemp = forecasts_0_casts_1["daytemp"]; // "35"
   const char* forecasts_0_casts_1_nighttemp = forecasts_0_casts_1["nighttemp"]; // "22"
+//后天的天气
+  JsonObject& forecasts_0_casts_2 = forecasts_0_casts[2];
+  const char* forecasts_0_casts_2_date = forecasts_0_casts_2["date"]; // "2022-07-19"
+  const char* forecasts_0_casts_2_week = forecasts_0_casts_2["week"]; // "2"
+  const char* forecasts_0_casts_2_dayweather = forecasts_0_casts_2["dayweather"]; // "多云"
+  const char* forecasts_0_casts_2_nightweather = forecasts_0_casts_2["nightweather"]; // "多云"
+  const char* forecasts_0_casts_2_daytemp = forecasts_0_casts_2["daytemp"]; // "33"
+  const char* forecasts_0_casts_2_nighttemp = forecasts_0_casts_2["nighttemp"]; // "24"
 
 //填充
  //城市
@@ -117,13 +113,19 @@ void putjson(const char* content){
   tempday[1] =  (forecasts_0_casts_1_daytemp);
   tempnight[1] =  (forecasts_0_casts_1_nighttemp);
   tianqi =  (forecasts_0_casts_1_daytemp);
+  xianshi(tianqiday,tianqinight,date);
+  Serial.println(forecasts_0_province);
+  Serial.println(forecasts_0_city);
+  Serial.println(forecasts_0_casts_0_date);
+  Serial.println(forecasts_0_casts_0_week);
+  Serial.println(date[0]);
 }
 //连接服务器查询天气，并在串口输出
 void getapi(){
   client.setInsecure();
   Serial.println("[HTTPS] begin...");
   String url = "https://restapi.amap.com/v3/weather/weatherInfo?&city="
-                + location + "&key=" + key + "&extensions=" + extensions+"&gzip=n";
+                + location + "&key=" + key + "&extensions=" + extensions;
   if(https.begin(client,url)){
     Serial.println("[HTTPS] GET...");
     int httpCode = https.GET();
@@ -132,6 +134,7 @@ void getapi(){
       if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) { // 服务器响应
         String str = https.getString();
         const char* s=str.c_str();
+        Serial.println(str);
         putjson(s);
       }
     } else { // 错误返回负值
@@ -141,19 +144,18 @@ void getapi(){
     }
   else { // HTTPS连接失败
     Serial.printf("[HTTPS] Unable to connect\n");
-  }
-  xianshi();
-  delay(10000);
+  }  
+  delay(1000);
 }
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);//设置波特率
+  wifi_start_connect();//连接wifi
+  client.setTimeout(5000);//设置服务器连接超时
   tft.init();                           //初始化
   tft.setRotation(0);
   tft.fillScreen(TFT_WHITE);            //屏幕颜色
-  wifi_start_connect();
-  client.setTimeout(5000);//设置服务器连接超时
 }
 void loop() {
-    getapi();
+  getapi();
 }
