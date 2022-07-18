@@ -4,8 +4,8 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <TFT_eSPI.h>
-#include <u8g2.h>
-#define BLK 5
+#include <Tools/Create_Smooth_Font/Create_font/FontFiles/fontsimkai_16.h>
+#define BLK 150
 TFT_eSPI tft = TFT_eSPI();
 const char* AP_SSID     = "HUAWEI-0409E6";         // XXXXXX -- 使用时请修改为当前你的 wifi ssid
 const char* AP_PSK = "15660090095";        // XXXXXX -- 使用时请修改为当前你的 wifi 密码
@@ -14,12 +14,13 @@ HTTPClient https; //创建一个网络对象
 String location="411627";
 String key="d4055a0ac0848d29ab8bb6e4ad498d7a";
 String extensions="all";           
-String city[2];
-String tianqiday[2];
-Stirng tianqinight[2];
-String date[2];
-String tempday[2];//白天的温度，最高气温
-String tempnight[2];//夜间温度，最低气温
+const char* city[2];
+const char* tianqiday[2];
+const char*tianqinight[2];
+const char* date[2];
+const char* tianqi;
+const char* tempday[2];//白天的温度，最高气温
+const char* tempnight[2];//夜间温度，最低气温
 void wifi_start_connect()              //连接WIFI
 {
   WiFi.mode(WIFI_STA);                 //设置esp8266 工作模式 
@@ -36,6 +37,17 @@ void wifi_start_connect()              //连接WIFI
   Serial.println(WiFi.localIP()); 
 }
 
+//显示天气
+void xianshi(const char* tianqiday[],const char* tianqinightp[],const char* date[]){
+  tft.init();                           //初始化
+  tft.setRotation(0);
+  tft.fillScreen(TFT_WHITE);            //屏幕颜色
+  tft.setTextColor(TFT_YELLOW);         //设置文本颜色为黄色
+  tft.loadFont(fontsimkai_16);
+  tft.setTextSize(4);
+  tft.drawString(tianqiday[0],10,20);
+  tft.unloadFont();
+}
 //解析程序,预报未来3天的天气
 void putjson(const char* content){
   const size_t capacity = JSON_ARRAY_SIZE(1) + JSON_ARRAY_SIZE(4) + 2*JSON_OBJECT_SIZE(5) + 4*JSON_OBJECT_SIZE(10) + 700;
@@ -89,21 +101,22 @@ void putjson(const char* content){
 
 //填充
  //城市
-  city[0] = String (forecasts_0_province);
-  city[1] = String (forecasts_0_city);
+  city[0] =  (forecasts_0_province);
+  city[1] =  (forecasts_0_city);
  //今日天气
-  date[0] = String (forecasts_0_casts_0_date);
-  tianqiday[0] = String (forecasts_0_casts_0_dayweather);
-  tianqinight[0] = Stirng (forecasts_0_casts_0_nightweather);
-  tempday[0] = String (forecasts_0_casts_0_daytemp);
-  tempnight[0] = String (forecasts_0_casts_0_nighttemp);
+  date[0] =  (forecasts_0_casts_0_date);
+  tianqiday[0] =  (forecasts_0_casts_0_dayweather);
+  tianqinight[0] =  (forecasts_0_casts_0_nightweather);
+  tempday[0] =  (forecasts_0_casts_0_daytemp);
+  tempnight[0] =  (forecasts_0_casts_0_nighttemp);
  //明日天气
-  date[1] = String (forecasts_0_casts_1_date);
-  tianqiday[1] = String (forecasts_0_casts_1_dayweather);
-  tianqinight[1] = Stirng (forecasts_0_casts_1_nightweather);
-  tempday[1] = String (forecasts_0_casts_1_daytemp);
-  tempnight[1] = String (forecasts_0_casts_1_nighttemp);
-
+  date[1] =  (forecasts_0_casts_1_date);
+  tianqiday[1] =  (forecasts_0_casts_1_dayweather);
+  tianqinight[1] =  (forecasts_0_casts_1_nightweather);
+  tempday[1] =  (forecasts_0_casts_1_daytemp);
+  tempnight[1] =  (forecasts_0_casts_1_nighttemp);
+  tianqi =  (forecasts_0_casts_1_daytemp);
+  xianshi(tianqiday,tianqinight,date);
   JsonObject& forecasts_0_casts_3 = forecasts_0_casts[3];
   const char* forecasts_0_casts_3_date = forecasts_0_casts_3["date"]; // "2022-07-20"
   const char* forecasts_0_casts_3_week = forecasts_0_casts_3["week"]; // "3"
@@ -116,7 +129,7 @@ void putjson(const char* content){
   Serial.println(forecasts_0_city);
   Serial.println(forecasts_0_casts_0_date);
   Serial.println(forecasts_0_casts_0_week);
-  Serial.println(forecasts_0_casts_0_dayweather);
+  Serial.println(date[0]);
 }
 //连接服务器查询天气，并在串口输出
 void getapi(){
@@ -145,22 +158,12 @@ void getapi(){
   }  
   delay(1000);
 }
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);//设置波特率
   wifi_start_connect();//连接wifi
   client.setTimeout(5000);//设置服务器连接超时
-  pinMode(BLK, OUTPUT);
- 
-  tft.init();                           //初始化
-  tft.fillScreen(TFT_BLACK);            //屏幕颜色
-  tft.setCursor(20, 80, 1);             //设置起始坐标(10, 10)，2 号字体
-  tft.setTextColor(TFT_YELLOW);         //设置文本颜色为黄色
-  tft.setTextSize(3);                   //设置文字的大小 (1~7)
-  tft.println("Hello World!");              //显示文字
 }
 void loop() {
   getapi();
-  analogWrite(BLK, 150);
 }
