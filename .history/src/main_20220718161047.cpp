@@ -4,7 +4,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <TFT_eSPI.h>
-#include <Tools/Create_Smooth_Font/Create_font/FontFiles/fontsimkai_20.h>
+#include <Tools/Create_Smooth_Font/Create_font/FontFiles/fontsimkai_30.h>
 #define BLK 150;
 TFT_eSPI tft=TFT_eSPI();
 const char* AP_SSID     = "HUAWEI-0409E6";         // XXXXXX -- 使用时请修改为当前你的 wifi ssid
@@ -25,7 +25,6 @@ const char* supdate;
 
 void wifi_start_connect()              //连接WIFI
 {
-  int i=0;
   WiFi.mode(WIFI_STA);                 //设置esp8266 工作模式 
   Serial.println("Connecting to ");    //写几句提示
   Serial.println(AP_SSID);
@@ -33,22 +32,24 @@ void wifi_start_connect()              //连接WIFI
   WiFi.setAutoConnect(true);
   while (WiFi.status()!= WL_CONNECTED) //这个函数是wifi连接状态，返回wifi链接状态
         {
-        
         tft.setRotation(0);
         tft.setTextColor(TFT_BLUE);
         tft.setTextSize(6);         //设置文本颜色为黑色
-        tft.loadFont(fontsimkai_20);
+        tft.loadFont(fontsimkai_30);
         tft.drawCentreString("content",120,100,0);
-        tft.drawCentreString(AP_SSID,120,120,0);
-        delay(200);
-        tft.drawCentreString(".",50+i,130,0);
-        i=i+10;
-        if(i>=150){i=0;};
+        tft.drawCentreString(AP_SSID,120,130,0);
+        delay(500);
+        tft.drawCentreString(".",120,160,0);
+        delay(500);
+        tft.drawCentreString(".",130,160,0);
+        delay(500);
+        tft.drawCentreString(".",140,160,0);
+        tft.unloadFont(); tft.unloadFont(); 
       }
   Serial.println("WiFi connected IP is");
   Serial.println(WiFi.localIP()); 
 }
-//截取最后N位字符串
+//截取字符串
 char* Substrend(char*str,int n)
 {
 	char *substr=(char*)malloc(n+1);
@@ -71,45 +72,30 @@ char* Substrend(char*str,int n)
 void xianshi(){
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_WHITE);         //设置文本颜色为bai色
-  tft.loadFont(fontsimkai_20);
-  int i=20,cnt=35;//方便调整间距
-  tft.drawCentreString(city[1],120,cnt,0);
+  tft.loadFont(fontsimkai_30);
+  tft.drawCentreString(city[1],120,5,0);
   
-  delay(250);
-
   tft.setTextColor(TFT_YELLOW);         //设置文本颜色为黄色
-  tft.drawCentreString(date[0],120,cnt+i,200);
-
-  delay(250);
+  tft.drawCentreString(date[0],120,35,0);
 
   String s=String(tianqiday[0]) +"转"+ String(tianqinight[0]);
-  tft.drawCentreString(s.c_str(),120,cnt+i*2,0);
+  tft.drawCentreString(s.c_str(),120,65,0);
 
-  delay(250);
-
-  String ss1="气温:"+String(tempnight[0])+"℃"+"-"+String(tempday[0])+"℃";
-  tft.drawCentreString(ss1.c_str(),120,cnt+i*3,0);
-  cnt=40;
+  String ss1="气温:"+String(tempnight[0])+"-"+String(tempnight[0]);
+  tft.drawCentreString(ss1.c_str(),120,95,0);
   //明日天气
   tft.setTextColor(TFT_BLUE);         //设置文本颜色为lan色
-  tft.drawCentreString(date[1],120,cnt+i*4,0);
-
-  delay(250);
+  tft.drawCentreString(date[1],120,125,0);
 
   String s1=(String(tianqiday[1]) +"转"+ String(tianqinight[1]));
-  tft.drawCentreString(s1.c_str(),120,cnt+i*5,0);
+  tft.drawCentreString(s1.c_str(),120,155,0);
 
-  delay(250);
-
-  String ss2="气温:"+String(tempnight[1])+"℃"+"-"+String(tempday[1])+"℃";
-  tft.drawCentreString(ss2.c_str(),120,cnt+i*6,0);
-  
-  delay(250);
-
-  tft.setTextColor(TFT_WHITE);         //设置文本颜色为bai色
-  char* n=const_cast<char*>(supdate);
-  const char* m=Substrend(n,14);
-  tft.drawCentreString(m,120,i*7+cnt,0);
+  String ss2="气温:"+String(tempnight[0])+"-"+String(tempnight[0]);
+  tft.drawCentreString(ss2.c_str(),120,185,0);
+  String n=String(supdate);
+  char* l=n;
+  String m=Substrend(l,5);
+  tft.drawCentreString(m.c_str(),120,215,0);
   tft.unloadFont();
 }
 //解析程序,预报未来3天的天气

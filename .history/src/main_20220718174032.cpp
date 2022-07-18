@@ -41,9 +41,9 @@ void wifi_start_connect()              //连接WIFI
         tft.drawCentreString("content",120,100,0);
         tft.drawCentreString(AP_SSID,120,120,0);
         delay(200);
-        tft.drawCentreString(".",50+i,130,0);
+        tft.drawCentreString(".",50+i,140,0);
         i=i+10;
-        if(i>=150){i=0;};
+        if(i>=140){i=0;};
       }
   Serial.println("WiFi connected IP is");
   Serial.println(WiFi.localIP()); 
@@ -78,7 +78,7 @@ void xianshi(){
   delay(250);
 
   tft.setTextColor(TFT_YELLOW);         //设置文本颜色为黄色
-  tft.drawCentreString(date[0],120,cnt+i,200);
+  tft.drawCentreString(date[0],120,cnt+i,50);
 
   delay(250);
 
@@ -87,9 +87,8 @@ void xianshi(){
 
   delay(250);
 
-  String ss1="气温:"+String(tempnight[0])+"℃"+"-"+String(tempday[0])+"℃";
+  String ss1="气温:"+String(tempnight[0])+"-"+String(tempday[0]);
   tft.drawCentreString(ss1.c_str(),120,cnt+i*3,0);
-  cnt=40;
   //明日天气
   tft.setTextColor(TFT_BLUE);         //设置文本颜色为lan色
   tft.drawCentreString(date[1],120,cnt+i*4,0);
@@ -100,8 +99,8 @@ void xianshi(){
   tft.drawCentreString(s1.c_str(),120,cnt+i*5,0);
 
   delay(250);
-
-  String ss2="气温:"+String(tempnight[1])+"℃"+"-"+String(tempday[1])+"℃";
+  
+  String ss2="气温:"+String(tempnight[1])+"-"+String(tempday[1]);
   tft.drawCentreString(ss2.c_str(),120,cnt+i*6,0);
   
   delay(250);

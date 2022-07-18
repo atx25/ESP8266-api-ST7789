@@ -21,7 +21,6 @@
     "C:/Users/13248/.platformio/packages/framework-arduinoespressif8266/libraries/ESP8266HTTPClient/src",
     "C:/Users/13248/.platformio/packages/framework-arduinoespressif8266/libraries/ESP8266WiFi/src",
     "C:/Users/13248/.platformio/packages/framework-arduinoespressif8266/libraries/ArduinoJson/src",
-    "c:/Users/13248/OneDrive/文档/PlatformIO/Projects/gaodetianqiapi/.pio/libdeps/esp12e/U8g2/src",
     "c:/Users/13248/OneDrive/文档/PlatformIO/Projects/gaodetianqiapi/.pio/libdeps/esp12e/TFT_eSPI",
     "C:/Users/13248/.platformio/packages/framework-arduinoespressif8266/libraries/LittleFS/src",
     "C:/Users/13248/.platformio/packages/framework-arduinoespressif8266/libraries/SPI",
@@ -76,5 +75,9 @@
     "**/.*/**",
     "**/.vscode",
     "**/.vscode/**"
-  ]
+  ],
+  "files.associations": {
+    "string": "cpp",
+    "string_view": "cpp"
+  }
 }
